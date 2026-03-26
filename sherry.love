@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>For Sherry ❤️</title>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #1a001a, #000);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  font-family: "Segoe UI", sans-serif;
+  color: white;
+}
+
+/* 爱心主体 */
+.heart {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  transform: rotate(45deg);
+  animation: beat 1.2s infinite;
+  background: linear-gradient(45deg, #ff4d6d, #ff1a4d);
+  box-shadow: 0 0 40px #ff4d6d, 0 0 80px #ff1a4d;
+}
+
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(45deg, #ff4d6d, #ff1a4d);
+  border-radius: 50%;
+}
+
+.heart::before { top: -75px; }
+.heart::after { left: -75px; }
+
+/* 心跳 */
+@keyframes beat {
+  0%,100% { transform: scale(1) rotate(45deg); }
+  50% { transform: scale(1.2) rotate(45deg); }
+}
+
+/* 光波扩散 */
+.ring {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 2px solid rgba(255, 77, 109, 0.5);
+  border-radius: 50%;
+  animation: ripple 2s infinite;
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* 打字 */
+.text {
+  margin-top: 40px;
+  font-size: 32px;
+  border-right: 2px solid white;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  animation: typing 5s steps(20, end) forwards, blink 0.8s infinite;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 300px }
+}
+
+@keyframes blink {
+  50% { border-color: transparent }
+}
+
+/* 粒子 */
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* 点击掉爱心 */
+.falling-heart {
+  position: absolute;
+  color: #ff4d6d;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎵 音乐 -->
+<audio id="bgm" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<canvas id="canvas"></canvas>
+
+<div class="ring"></div>
+<div class="heart"></div>
+<div class="text">Sherry 我爱你 ❤️</div>
+
+<script>
+// 👉 点击播放音乐（微信也能用）
+document.addEventListener("click", function() {
+  document.getElementById("bgm").play();
+}, { once: true });
+
+// 粒子爱心
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function heartFunction(t) {
+  return {
+    x: 16 * Math.pow(Math.sin(t), 3),
+    y: -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t))
+  };
+}
+
+for (let i = 0; i < 200; i++) {
+  let t = Math.random() * Math.PI * 2;
+  let pos = heartFunction(t);
+  particles.push({
+    x: canvas.width/2 + pos.x * 10,
+    y: canvas.height/2 + pos.y * 10,
+    size: Math.random() * 2 + 1
+  });
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = "#ff4d6d";
+
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  requestAnimationFrame(draw);
+}
+draw();
+
+// 点击掉爱心
+document.addEventListener("click", function(e) {
+  let heart = document.createElement("div");
+  heart.className = "falling-heart";
+  heart.innerHTML = "❤️";
+  heart.style.left = e.clientX + "px";
+  heart.style.top = e.clientY + "px";
+  heart.style.fontSize = Math.random()*20+10+"px";
+  heart.style.animationDuration = Math.random()*2+2+"s";
+  document.body.appendChild(heart);
+
+  setTimeout(()=>heart.remove(),3000);
+});
+</script>
+
+</body>
+</html>
